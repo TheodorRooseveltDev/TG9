@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "shop_bg.png",
+      "filename" : "iPhone 16 Pro Max - 1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "shop_bg@2x.png",
+      "filename" : "iPhone 16 Pro Max - 1@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "shop_bg@3x.png",
+      "filename" : "iPhone 16 Pro Max - 1@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
