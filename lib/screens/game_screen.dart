@@ -178,49 +178,6 @@ class _GameScreenState extends State<GameScreen> {
                 _restartGame(); // For now, just restart
               },
             ),
-
-          // DEBUG: Coin button (top-left corner)
-          Positioned(
-            top: 20,
-            left: 20,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  gameState.addCoins(999);
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add_circle, color: Colors.white, size: 20),
-                    SizedBox(width: 4),
-                    Text(
-                      '999',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
