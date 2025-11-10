@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/game_assets.dart';
 
@@ -21,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _logoScale;
   late Animation<double> _logoOpacity;
   late Animation<double> _loaderOpacity;
+  bool _isRotating = false;
 
   @override
   void initState() {
@@ -55,10 +57,26 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Auto-complete after animation
+    // Auto-complete after animation and switch to landscape
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        widget.onComplete();
+        // Show rotating loader
+        setState(() {
+          _isRotating = true;
+        });
+        
+        // Switch to landscape mode before navigating to game
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]).then((_) {
+          // Wait a bit for the orientation to settle
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              widget.onComplete();
+            }
+          });
+        });
       }
     });
   }
@@ -130,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
 
               // Custom loader at bottom
               Positioned(
-                bottom: 80,
+                bottom: 120,
                 left: 0,
                 right: 0,
                 child: Opacity(
@@ -138,6 +156,78 @@ class _SplashScreenState extends State<SplashScreen>
                   child: const CustomLoader(),
                 ),
               ),
+
+              // "Please rotate your phone" message at bottom
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Opacity(
+                  opacity: _loaderOpacity.value,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.screen_rotation,
+                        color: Colors.white,
+                        size: 32,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 8,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Please rotate your phone',
+                        style: GoogleFonts.rubik(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 8,
+                              offset: const Offset(2, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Rotation loader overlay
+              if (_isRotating)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.8),
+                    child: const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            strokeWidth: 3,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Rotating...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
             ],
           );
         },

@@ -8,10 +8,10 @@ import 'state/game_state.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Force landscape mode
+  // Start with portrait mode for splash screen
   SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
   ]);
 
   // Hide system UI for immersive full screen
