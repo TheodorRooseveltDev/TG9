@@ -426,11 +426,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _openPrivacyPolicy() {
-    _openInAppBrowser('https://www.example.com/privacy-policy');
+    _openInAppBrowser('https://baloontwistfly.com/privacy');
   }
 
   void _openTermsOfService() {
-    _openInAppBrowser('https://www.example.com/terms-of-service');
+    _openInAppBrowser('https://baloontwistfly.com/terms');
   }
 
   void _showResetConfirmation() {
