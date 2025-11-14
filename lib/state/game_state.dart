@@ -45,6 +45,7 @@ class GameState {
   Set<String> unlockedSkins = {'classic'};
   bool soundEnabled = true;
   bool musicEnabled = true;
+  bool notificationsEnabled = false;
   String username = 'Player';
   bool hasCompletedOnboarding = false;
 
@@ -66,6 +67,7 @@ class GameState {
     currentSkin = _prefs!.getString('currentSkin') ?? 'classic';
     soundEnabled = _prefs!.getBool('soundEnabled') ?? true;
     musicEnabled = _prefs!.getBool('musicEnabled') ?? true;
+    notificationsEnabled = _prefs!.getBool('notificationsEnabled') ?? false;
     username = _prefs!.getString('username') ?? 'Player';
     hasCompletedOnboarding = _prefs!.getBool('hasCompletedOnboarding') ?? false;
     
@@ -89,6 +91,7 @@ class GameState {
     await _prefs!.setString('currentSkin', currentSkin);
     await _prefs!.setBool('soundEnabled', soundEnabled);
     await _prefs!.setBool('musicEnabled', musicEnabled);
+    await _prefs!.setBool('notificationsEnabled', notificationsEnabled);
     await _prefs!.setString('username', username);
     await _prefs!.setBool('hasCompletedOnboarding', hasCompletedOnboarding);
     await _prefs!.setStringList('unlockedSkins', unlockedSkins.toList());
@@ -108,6 +111,7 @@ class GameState {
     unlockedSkins = {'classic'};
     soundEnabled = true;
     musicEnabled = true;
+    notificationsEnabled = false;
     username = 'Player';
     hasCompletedOnboarding = false;
     

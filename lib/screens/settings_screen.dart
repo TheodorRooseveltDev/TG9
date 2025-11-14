@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../constants/game_assets.dart';
 import '../state/game_state.dart';
 import 'onboarding_screen.dart';
@@ -22,14 +24,33 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late bool soundEnabled;
   late bool musicEnabled;
+  late bool notificationsEnabled;
   bool isResetButtonPressed = false;
   bool isChangeNameButtonPressed = false;
+  bool _oneSignalInitialized = false;
+
+  static const String _oneSignalAppId = "e3d196e1-4c85-43d8-8904-b3d16b65d9f8";
 
   @override
   void initState() {
     super.initState();
     soundEnabled = widget.gameState.soundEnabled;
     musicEnabled = widget.gameState.musicEnabled;
+    notificationsEnabled = widget.gameState.notificationsEnabled;
+    _initializeOneSignal();
+  }
+
+  Future<void> _initializeOneSignal() async {
+    if (_oneSignalInitialized) return;
+    
+    try {
+      await OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+      await OneSignal.Location.setShared(false);
+      OneSignal.initialize(_oneSignalAppId);
+      _oneSignalInitialized = true;
+    } catch (e) {
+      // OneSignal initialization failed
+    }
   }
 
   void _toggleSound() {
@@ -44,6 +65,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       musicEnabled = !musicEnabled;
       widget.gameState.musicEnabled = musicEnabled;
+      widget.gameState.saveData();
+    });
+  }
+
+  Future<void> _toggleNotifications() async {
+    if (!notificationsEnabled) {
+      // Turning on notifications - request permission
+      await _initializeOneSignal();
+      
+      try {
+        await OneSignal.Notifications.requestPermission(true);
+        final externalId = const Uuid().v1();
+        try {
+          OneSignal.login(externalId);
+          OneSignal.User.pushSubscription.addObserver((state) {});
+        } catch (_) {}
+      } catch (e) {
+        // Permission request failed
+      }
+    }
+    
+    setState(() {
+      notificationsEnabled = !notificationsEnabled;
+      widget.gameState.notificationsEnabled = notificationsEnabled;
       widget.gameState.saveData();
     });
   }
@@ -117,6 +162,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               label: 'Music',
                               isEnabled: musicEnabled,
                               onToggle: _toggleMusic,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Notifications Section
+                      _buildSection(
+                        title: 'NOTIFICATIONS',
+                        child: Column(
+                          children: [
+                            _buildSettingRow(
+                              label: 'Notifications',
+                              isEnabled: notificationsEnabled,
+                              onToggle: _toggleNotifications,
                             ),
                           ],
                         ),
