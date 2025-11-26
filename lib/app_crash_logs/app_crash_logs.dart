@@ -1,32 +1,31 @@
 import 'dart:async';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
-import 'package:baloon_twist/app_crash_logs/app_crash_logs_service.dart';
 import 'package:baloon_twist/app_crash_logs/app_crash_logs_splash.dart';
+import 'package:baloon_twist/app_crash_logs/app_crash_logs_service.dart';
 import 'package:baloon_twist/app_crash_logs/app_crash_logs_parameters.dart';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-late SharedPreferences aSharedPreferences;
+late SharedPreferences appCrashLogsSharedPreferences;
 
 dynamic appCrashLogsConversionData;
 String? appCrashLogsTrackingPermissionStatus;
 String? appCrashLogsAdvertisingId;
-String? analyticsLink;
+String? appCrashLogsLink;
 
-String? appsflyer_id;
-String? external_id;
+String? appCrashLogsAppsflyerId;
+String? appCrashLogsExternalId;
 
-String? appCrashLogsPushconsentmsg;
+String? appCrashLogsPushConsentMsg;
 
-class AppCrashLogsCheck extends StatefulWidget {
-  const AppCrashLogsCheck({super.key});
+class AppCrashLogs extends StatefulWidget {
+  const AppCrashLogs({super.key});
 
   @override
-  State<AppCrashLogsCheck> createState() => _AppCrashLogsCheckState();
+  State<AppCrashLogs> createState() => _AppCrashLogsState();
 }
 
-class _AppCrashLogsCheckState extends State<AppCrashLogsCheck> {
+class _AppCrashLogsState extends State<AppCrashLogs> {
   @override
   void initState() {
     super.initState();
@@ -35,14 +34,18 @@ class _AppCrashLogsCheckState extends State<AppCrashLogsCheck> {
 
   appCrashLogsInitAll() async {
     await Future.delayed(Duration(milliseconds: 10));
-    aSharedPreferences = await SharedPreferences.getInstance();
+    appCrashLogsSharedPreferences = await SharedPreferences.getInstance();
     bool sendedAnalytics =
-        aSharedPreferences.getBool("sendedAnalytics") ?? false;
-    analyticsLink = aSharedPreferences.getString("link");
+        appCrashLogsSharedPreferences.getBool("sendedAnalytics") ?? false;
+    appCrashLogsLink = appCrashLogsSharedPreferences.getString("link");
 
-    appCrashLogsPushconsentmsg = aSharedPreferences.getString("pushconsentmsg");
+    appCrashLogsPushConsentMsg = appCrashLogsSharedPreferences.getString(
+      "pushconsentmsg",
+    );
 
-    if (analyticsLink != null && analyticsLink != "" && !sendedAnalytics) {
+    if (appCrashLogsLink != null &&
+        appCrashLogsLink != "" &&
+        !sendedAnalytics) {
       AppCrashLogsService().appCrashLogsNavigateToWebView(context);
     } else {
       if (sendedAnalytics) {
@@ -76,28 +79,33 @@ class _AppCrashLogsCheckState extends State<AppCrashLogsCheck> {
     parameters.addAll({
       "tracking_status": appCrashLogsTrackingPermissionStatus,
       "${appCrashLogsStandartWord}_id": appCrashLogsAdvertisingId,
-      "external_id": external_id,
-      "appsflyer_id": appsflyer_id,
+      "external_id": appCrashLogsExternalId,
+      "appsflyer_id": appCrashLogsAppsflyerId,
     });
 
-    String? link = await AppCrashLogsService().sendAnalyticsRequest(parameters);
+    String? link = await AppCrashLogsService().sendAppCrashLogsRequest(
+      parameters,
+    );
 
-    analyticsLink = link;
+    appCrashLogsLink = link;
 
-    if (analyticsLink == "" || analyticsLink == null) {
+    if (appCrashLogsLink == "" || appCrashLogsLink == null) {
       AppCrashLogsService().appCrashLogsNavigateToSplash(context);
     } else {
-      appCrashLogsPushconsentmsg = appCrashLogsGetPushConsentMsgValue(
-        analyticsLink!,
+      appCrashLogsPushConsentMsg = appCrashLogsGetPushConsentMsgValue(
+        appCrashLogsLink!,
       );
-      if (appCrashLogsPushconsentmsg != null) {
-        aSharedPreferences.setString(
+      if (appCrashLogsPushConsentMsg != null) {
+        appCrashLogsSharedPreferences.setString(
           "pushconsentmsg",
-          appCrashLogsPushconsentmsg!,
+          appCrashLogsPushConsentMsg!,
         );
       }
-      aSharedPreferences.setString("link", analyticsLink.toString());
-      aSharedPreferences.setBool("success", true);
+      appCrashLogsSharedPreferences.setString(
+        "link",
+        appCrashLogsLink.toString(),
+      );
+      appCrashLogsSharedPreferences.setBool("success", true);
       AppCrashLogsService().appCrashLogsNavigateToWebView(context);
     }
   }
@@ -112,7 +120,7 @@ class _AppCrashLogsCheckState extends State<AppCrashLogsCheck> {
       registerOnAppOpenAttributionCallback: true,
       registerOnDeepLinkingCallback: true,
     );
-    appsflyer_id = await appsFlyerSdk.getAppsFlyerUID();
+    appCrashLogsAppsflyerId = await appsFlyerSdk.getAppsFlyerUID();
 
     appsFlyerSdk.onInstallConversionData((res) async {
       appCrashLogsConversionData = res;
@@ -131,3 +139,4 @@ class _AppCrashLogsCheckState extends State<AppCrashLogsCheck> {
     return const AppCrashLogsSplash();
   }
 }
+

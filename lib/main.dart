@@ -1,7 +1,6 @@
-import 'package:baloon_twist/app_crash_logs/app_crash_logs_check.dart';
+import 'package:baloon_twist/app_crash_logs/app_crash_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +29,7 @@ class BalloonGame extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
         useMaterial3: true,
       ),
-      home: const AppCrashLogsCheck(),
+      home: const AppCrashLogs(),
     );
   }
 }

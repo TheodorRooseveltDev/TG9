@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:baloon_twist/app_crash_logs/app_crash_logs_check.dart';
+import 'package:baloon_twist/app_crash_logs/app_crash_logs.dart';
 import 'package:flutter/material.dart';
 
 class AppCrashLogsConsentPromptPage extends StatelessWidget {
@@ -26,7 +26,7 @@ class AppCrashLogsConsentPromptPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                appCrashLogsPushconsentmsg ?? "",
+                appCrashLogsPushConsentMsg ?? "",
                 maxLines: 6,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
@@ -37,7 +37,6 @@ class AppCrashLogsConsentPromptPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

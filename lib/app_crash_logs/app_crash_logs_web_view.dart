@@ -1,23 +1,23 @@
 import 'dart:ui';
 
 import 'package:app_settings/app_settings.dart';
-import 'package:baloon_twist/app_crash_logs/app_crash_logs_check.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:baloon_twist/app_crash_logs/app_crash_logs.dart';
 import 'package:baloon_twist/app_crash_logs/app_crash_logs_consent_prompt.dart';
 import 'package:baloon_twist/app_crash_logs/app_crash_logs_service.dart';
 import 'package:baloon_twist/app_crash_logs/app_crash_logs_splash.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
-
-class WebViewWidget extends StatefulWidget {
-  const WebViewWidget({super.key});
+class AppCrashLogsWebViewWidget extends StatefulWidget {
+  const AppCrashLogsWebViewWidget({super.key});
 
   @override
-  State<WebViewWidget> createState() => _WebViewWidgetState();
+  State<AppCrashLogsWebViewWidget> createState() =>
+      _AppCrashLogsWebViewWidgetState();
 }
 
-class _WebViewWidgetState extends State<WebViewWidget>
+class _AppCrashLogsWebViewWidgetState extends State<AppCrashLogsWebViewWidget>
     with WidgetsBindingObserver {
   late InAppWebViewController appCrashLogsWebViewController;
 
@@ -25,10 +25,10 @@ class _WebViewWidgetState extends State<WebViewWidget>
   bool appCrashLogsShowConsentPrompt = false;
 
   bool appCrashLogsWasOpenNotification =
-      aSharedPreferences.getBool("wasOpenNotification") ?? false;
+      appCrashLogsSharedPreferences.getBool("wasOpenNotification") ?? false;
 
   final bool savePermission =
-      aSharedPreferences.getBool("savePermission") ?? false;
+      appCrashLogsSharedPreferences.getBool("savePermission") ?? false;
 
   bool waitingForSettingsReturn = false;
 
@@ -68,7 +68,7 @@ class _WebViewWidgetState extends State<WebViewWidget>
         .isSystemPermissionGranted();
 
     if (havePermission || systemNotificationsEnabled) {
-      aSharedPreferences.setBool("wasOpenNotification", true);
+      appCrashLogsSharedPreferences.setBool("wasOpenNotification", true);
       appCrashLogsWasOpenNotification = true;
       AppCrashLogsService().appCrashLogsSendRequiestToBack();
     }
@@ -83,7 +83,6 @@ class _WebViewWidgetState extends State<WebViewWidget>
       children: [
         Opacity(
           opacity: appCrashLogsShowLoading ? 0 : 1,
-
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: Colors.black,
@@ -92,13 +91,76 @@ class _WebViewWidgetState extends State<WebViewWidget>
                 children: [
                   Expanded(
                     child: InAppWebView(
+                      onCreateWindow:
+                          (
+                            controller,
+                            CreateWindowAction createWindowRequest,
+                          ) async {
+                            await showDialog(
+                              context: context,
+                              builder: (dialogContext) {
+                                final dialogSize = MediaQuery.of(
+                                  dialogContext,
+                                ).size;
+
+                                return AlertDialog(
+                                  contentPadding: EdgeInsets.zero,
+                                  content: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      SizedBox(
+                                        width: dialogSize.width,
+                                        height: dialogSize.height * 0.8,
+                                        child: InAppWebView(
+                                          windowId:
+                                              createWindowRequest.windowId,
+                                          initialSettings: InAppWebViewSettings(
+                                            javaScriptEnabled: true,
+                                          ),
+                                          onCloseWindow: (controller) {
+                                            Navigator.of(dialogContext).pop();
+                                          },
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: -18,
+                                        right: -18,
+                                        child: Material(
+                                          color: Colors.black.withOpacity(0.7),
+                                          shape: const CircleBorder(),
+                                          child: InkWell(
+                                            customBorder: const CircleBorder(),
+                                            onTap: () {
+                                              Navigator.of(dialogContext).pop();
+                                            },
+                                            child: const Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                            return true;
+                          },
                       initialUrlRequest: URLRequest(
-                        url: WebUri(analyticsLink!),
+                        url: WebUri(appCrashLogsLink!),
                       ),
                       initialSettings: InAppWebViewSettings(
                         allowsBackForwardNavigationGestures: false,
                         javaScriptEnabled: true,
                         allowsInlineMediaPlayback: true,
+                        mediaPlaybackRequiresUserGesture: false,
+                        supportMultipleWindows: true,
+                        javaScriptCanOpenWindowsAutomatically: true,
                       ),
                       onWebViewCreated: (controller) {
                         appCrashLogsWebViewController = controller;
@@ -109,12 +171,13 @@ class _WebViewWidgetState extends State<WebViewWidget>
                         if (appCrashLogsWasOpenNotification) return;
 
                         final bool systemNotificationsEnabled =
-                            await AppCrashLogsService().isSystemPermissionGranted();
+                            await AppCrashLogsService()
+                                .isSystemPermissionGranted();
 
                         await Future.delayed(Duration(milliseconds: 3000));
 
                         if (systemNotificationsEnabled) {
-                          aSharedPreferences.setBool(
+                          appCrashLogsSharedPreferences.setBool(
                             "wasOpenNotification",
                             true,
                           );
@@ -162,15 +225,19 @@ class _WebViewWidgetState extends State<WebViewWidget>
                             .appCrashLogsRequestPermissionOneSignal();
 
                         final bool systemNotificationsEnabled =
-                            await AppCrashLogsService().isSystemPermissionGranted();
+                            await AppCrashLogsService()
+                                .isSystemPermissionGranted();
 
                         if (systemNotificationsEnabled) {
-                          aSharedPreferences.setBool(
+                          appCrashLogsSharedPreferences.setBool(
                             "wasOpenNotification",
                             true,
                           );
                         } else {
-                          aSharedPreferences.setBool("savePermission", true);
+                          appCrashLogsSharedPreferences.setBool(
+                            "savePermission",
+                            true,
+                          );
                         }
                         appCrashLogsWasOpenNotification = true;
                         appCrashLogsShowConsentPrompt = false;

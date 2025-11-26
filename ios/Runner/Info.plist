@@ -28,6 +28,10 @@
 	<true/>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Allow tracking to help us enhance functionality and fix issues faster. None of this data identifies you.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos for support requests.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select images for support requests.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

@@ -6,6 +6,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../constants/game_assets.dart';
 import '../state/game_state.dart';
+import '../widgets/support_settings_container.dart';
 import 'onboarding_screen.dart';
 
 /// Settings screen for sound, music, and other game options
@@ -207,6 +208,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
+
+                      const SizedBox(height: 10),
+
+                      // Support Section
+                      const SupportSettingsContainer(),
 
                       const SizedBox(height: 10),
 

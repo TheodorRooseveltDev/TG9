@@ -45,3 +45,4 @@ void appCrashLogsOpenStandartAppLogic(BuildContext context) async {
     );
   }
 }
+
